@@ -203,7 +203,7 @@ function App() {
 
       <header className="hero">
         <div>
-          <p className="eyebrow">Dinner Spinner</p>
+          <p className="hero__brand">Dinner Spinner</p>
           <h1>Meal planning that feels lighter than “what should we cook?”</h1>
           <p className="hero__copy">
             Save your family favorites, spin a cheerful weekly plan, and lock the meals you want to
