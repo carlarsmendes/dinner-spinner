@@ -1,11 +1,28 @@
-import { EMPTY_PLAN, STARTER_MEALS } from '../constants'
+import { EMPTY_PLAN, STARTER_MEALS, STARTER_MEALS_VERSION } from '../constants'
 import type { GeneratedPlan, Meal } from '../types'
 
 const MEALS_KEY = 'dinner-spinner-meals'
 const PLAN_KEY = 'dinner-spinner-plan'
 const KID_FRIENDLY_KEY = 'dinner-spinner-kid-friendly'
+const MEALS_VERSION_KEY = 'dinner-spinner-meals-version'
 
 const canUseStorage = () => typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+
+const writeStarterMeals = () => {
+  localStorage.setItem(MEALS_KEY, JSON.stringify(STARTER_MEALS))
+  localStorage.setItem(MEALS_VERSION_KEY, STARTER_MEALS_VERSION)
+
+  return STARTER_MEALS
+}
+
+const shouldReplaceWithLatestStarterMeals = (meals: Meal[], savedVersion: string | null) => {
+  if (savedVersion === STARTER_MEALS_VERSION) {
+    return false
+  }
+
+  // Only replace when storage still contains starter-only data.
+  return meals.length > 0 && meals.every((meal) => meal.id.startsWith('seed-'))
+}
 
 export const loadMeals = (): Meal[] => {
   if (!canUseStorage()) {
@@ -13,14 +30,24 @@ export const loadMeals = (): Meal[] => {
   }
 
   const raw = localStorage.getItem(MEALS_KEY)
+  const savedVersion = localStorage.getItem(MEALS_VERSION_KEY)
 
   if (!raw) {
-    localStorage.setItem(MEALS_KEY, JSON.stringify(STARTER_MEALS))
-    return STARTER_MEALS
+    return writeStarterMeals()
   }
 
   try {
-    return JSON.parse(raw) as Meal[]
+    const meals = JSON.parse(raw) as Meal[]
+
+    if (shouldReplaceWithLatestStarterMeals(meals, savedVersion)) {
+      return writeStarterMeals()
+    }
+
+    if (!savedVersion) {
+      localStorage.setItem(MEALS_VERSION_KEY, STARTER_MEALS_VERSION)
+    }
+
+    return meals
   } catch {
     return STARTER_MEALS
   }
