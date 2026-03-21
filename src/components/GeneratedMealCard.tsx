@@ -16,14 +16,18 @@ export const GeneratedMealCard = ({
 }: GeneratedMealCardProps) => (
   <article className={slot.locked ? 'week-card is-locked' : 'week-card'}>
     <div className="week-card__topline">
-      <span className="pill pill--soft">{label}</span>
+      <div className="week-card__slot">
+        <span className="pill pill--soft">{label}</span>
+        <span className="week-card__hint">{slot.locked ? 'Kept for the next spin' : 'Ready to swap if needed'}</span>
+      </div>
       <button
         type="button"
         className={slot.locked ? 'lock-button is-locked' : 'lock-button'}
         onClick={() => onToggleLock(slot.slotId)}
         aria-pressed={slot.locked}
       >
-        {slot.locked ? 'Locked' : 'Lock'}
+        <span aria-hidden="true">{slot.locked ? '🔒' : '🔓'}</span>
+        <span>{slot.locked ? 'Locked' : 'Lock meal'}</span>
       </button>
     </div>
 
@@ -31,19 +35,21 @@ export const GeneratedMealCard = ({
       <>
         <h3>{meal.name}</h3>
         <div className="tag-row">
-          <span className="pill">{TYPE_LABELS[slot.type]}</span>
+          <span className={`pill pill--type pill--type-${slot.type}`}>{TYPE_LABELS[slot.type]}</span>
           {meal.tags.map((tag) => (
-            <span key={tag} className="pill pill--accent">
+            <span key={tag} className={`pill pill--tag pill--tag-${tag}`}>
               {TAG_LABELS[tag]}
             </span>
           ))}
         </div>
-        {meal.ingredients ? <p>{meal.ingredients}</p> : <p>Simple, flexible, and ready for your week.</p>}
+        <p className="card-copy">{meal.ingredients || 'Simple, flexible, and ready for your week.'}</p>
       </>
     ) : (
       <>
         <h3>Waiting for a match</h3>
-        <p>Add another {TYPE_LABELS[slot.type].toLowerCase()} meal and spin again to fill this spot.</p>
+        <p className="card-copy">
+          Add another {TYPE_LABELS[slot.type].toLowerCase()} meal and spin again to fill this spot.
+        </p>
       </>
     )}
   </article>

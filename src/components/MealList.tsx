@@ -11,7 +11,7 @@ export const MealList = ({ meals, onEdit, onDelete }: MealListProps) => {
   if (meals.length === 0) {
     return (
       <section className="panel panel--empty">
-        <p className="eyebrow">Meal library</p>
+        <p className="eyebrow">Your kitchen</p>
         <h2>Add your first family favorite</h2>
         <p>Once you save a few meals here, Dinner Spinner can start building your week in seconds.</p>
       </section>
@@ -23,20 +23,21 @@ export const MealList = ({ meals, onEdit, onDelete }: MealListProps) => {
       {meals.map((meal) => (
         <article key={meal.id} className="meal-card">
           <div className="meal-card__header">
-            <div>
+            <div className="meal-card__content">
               <h3>{meal.name}</h3>
               <div className="tag-row">
                 {meal.types.map((type) => (
-                  <span key={type} className="pill">
+                  <span key={type} className={`pill pill--type pill--type-${type}`}>
                     {TYPE_LABELS[type]}
                   </span>
                 ))}
                 {meal.tags.map((tag) => (
-                  <span key={tag} className="pill pill--accent">
+                  <span key={tag} className={`pill pill--tag pill--tag-${tag}`}>
                     {TAG_LABELS[tag]}
                   </span>
                 ))}
               </div>
+              <p className="card-copy">{meal.ingredients || 'No ingredient notes yet.'}</p>
             </div>
             <div className="meal-card__actions">
               <button type="button" className="button button--ghost" onClick={() => onEdit(meal)}>
@@ -47,7 +48,6 @@ export const MealList = ({ meals, onEdit, onDelete }: MealListProps) => {
               </button>
             </div>
           </div>
-          <p>{meal.ingredients || 'No ingredient notes yet.'}</p>
         </article>
       ))}
     </section>

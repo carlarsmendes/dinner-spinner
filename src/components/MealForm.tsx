@@ -33,7 +33,10 @@ export const MealForm = ({
       <div className="panel__heading">
         <div>
           <p className="eyebrow">{mode === 'create' ? 'Add a meal' : 'Edit meal'}</p>
-          <h2>{mode === 'create' ? 'Keep dinner ideas handy' : 'Tweak this meal'}</h2>
+          <h2>{mode === 'create' ? 'Build your family meal board' : 'Update this meal'}</h2>
+          <p className="section-copy">
+            Quick details now make spinning the week much easier later.
+          </p>
         </div>
         {mode === 'edit' ? (
           <button type="button" className="button button--ghost" onClick={onCancelEdit}>
@@ -48,12 +51,13 @@ export const MealForm = ({
           <input
             value={draft.name}
             onChange={(event) => updateField('name', event.target.value)}
-            placeholder="Ex. veggie pasta"
+            placeholder="Ex. chicken stroganoff"
           />
         </label>
 
         <fieldset className="field">
           <legend>Meal type</legend>
+          <p className="field-hint">Choose one or more so Dinner Spinner knows where this meal fits.</p>
           <div className="choice-row">
             {MEAL_TYPES.map((type) => (
               <label key={type} className={draft.types.includes(type) ? 'choice is-selected' : 'choice'}>
@@ -70,6 +74,7 @@ export const MealForm = ({
 
         <fieldset className="field">
           <legend>Tags</legend>
+          <p className="field-hint">Optional, but helpful for quick spins and family-friendly picks.</p>
           <div className="choice-row">
             {TAGS.map((tag) => (
               <label key={tag} className={draft.tags.includes(tag) ? 'choice is-selected' : 'choice'}>
@@ -99,7 +104,7 @@ export const MealForm = ({
 
       <div className="form-actions">
         <button type="button" className="button" onClick={onSubmit}>
-          {mode === 'create' ? 'Save meal' : 'Update meal'}
+          {mode === 'create' ? 'Save to my meals' : 'Save changes'}
         </button>
         {mode === 'create' ? (
           <button type="button" className="button button--ghost" onClick={() => onChange(EMPTY_MEAL_DRAFT)}>

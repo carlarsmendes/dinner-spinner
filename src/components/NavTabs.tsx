@@ -10,14 +10,16 @@ export const NavTabs = ({ active, onChange }: NavTabsProps) => (
       className={active === 'week' ? 'nav-tabs__button is-active' : 'nav-tabs__button'}
       onClick={() => onChange('week')}
     >
-      This Week
+      <span aria-hidden="true">🍽️</span>
+      <span>This Week</span>
     </button>
     <button
       type="button"
       className={active === 'meals' ? 'nav-tabs__button is-active' : 'nav-tabs__button'}
       onClick={() => onChange('meals')}
     >
-      My Meals
+      <span aria-hidden="true">🥕</span>
+      <span>My Meals</span>
     </button>
   </nav>
 )

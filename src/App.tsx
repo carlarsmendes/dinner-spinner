@@ -198,17 +198,19 @@ function App() {
 
   return (
     <div className="app-shell">
-      <div className="app-shell__glow app-shell__glow--left" />
-      <div className="app-shell__glow app-shell__glow--right" />
-
       <header className="hero">
-        <div>
+        <div className="hero__content">
+          <p className="hero__eyebrow">Weekly family ritual</p>
           <p className="hero__brand">Dinner Spinner</p>
-          <h1>Meal planning that feels lighter than “what should we cook?”</h1>
+          <h1>Make this week&apos;s menu feel easy.</h1>
           <p className="hero__copy">
-            Save your family favorites, spin a cheerful weekly plan, and lock the meals you want to
-            keep.
+            Save family favorites, spin a fresh mix, and keep the meals you already love with one tap.
           </p>
+          <div className="hero__chips" aria-hidden="true">
+            <span className="hero-chip">🍝 Family favorites</span>
+            <span className="hero-chip">🎯 Quick weekly picks</span>
+            <span className="hero-chip">🔒 Lock what stays</span>
+          </div>
         </div>
         <NavTabs active={screen} onChange={setScreen} />
       </header>
@@ -219,11 +221,12 @@ function App() {
             <div className="panel__heading">
               <div>
                 <p className="eyebrow">This Week</p>
-                <h2>Pick a plan in a few taps</h2>
+                <h2>This week&apos;s menu</h2>
+                <p className="section-copy">Spin a cheerful starting point, then keep the picks that already feel right.</p>
               </div>
               <div className="action-row">
                 <button type="button" className="button" onClick={() => handleGenerate(false)}>
-                  Generate week
+                  Spin the week
                 </button>
                 <button
                   type="button"
@@ -231,21 +234,31 @@ function App() {
                   onClick={() => handleGenerate(true)}
                   disabled={plan.items.every((item) => !item.mealId)}
                 >
-                  Regenerate
+                  Try another mix
                 </button>
               </div>
             </div>
 
             <label className="toggle-card">
-              <div>
-                <strong>Make sure at least 2 meals are kid-friendly</strong>
-                <p>If there are not enough tagged meals yet, we will still build the best week possible.</p>
+              <div className="toggle-card__copy">
+                <span className="toggle-card__emoji" aria-hidden="true">
+                  🧒
+                </span>
+                <div>
+                  <strong>Aim for at least 2 kid-friendly meals</strong>
+                  <p>If there are not enough tagged meals yet, Dinner Spinner still makes the best possible mix.</p>
+                </div>
               </div>
-              <input
-                type="checkbox"
-                checked={kidFriendlyGoal}
-                onChange={(event) => setKidFriendlyGoal(event.target.checked)}
-              />
+              <span className={kidFriendlyGoal ? 'toggle-switch is-on' : 'toggle-switch'}>
+                <input
+                  type="checkbox"
+                  checked={kidFriendlyGoal}
+                  onChange={(event) => setKidFriendlyGoal(event.target.checked)}
+                />
+                <span className="toggle-switch__track" aria-hidden="true">
+                  <span className="toggle-switch__thumb" />
+                </span>
+              </span>
             </label>
 
             <p className="helper-copy">{helperMessage}</p>
@@ -260,7 +273,7 @@ function App() {
                 week in seconds.
               </p>
               <button type="button" className="button" onClick={() => setScreen('meals')}>
-                Go to My Meals
+                Head to My Meals
               </button>
             </section>
           ) : (
@@ -312,10 +325,11 @@ function App() {
             <div className="panel__heading">
               <div>
                 <p className="eyebrow">My Meals</p>
-                <h2>Your library</h2>
+                <h2>Your kitchen</h2>
+                <p className="section-copy">A calm little home for the meals your family actually eats.</p>
               </div>
-              <p className="helper-copy">
-                {meals.length} saved {meals.length === 1 ? 'meal' : 'meals'} ready to spin.
+              <p className="count-badge">
+                {meals.length} saved {meals.length === 1 ? 'meal' : 'meals'}
               </p>
             </div>
             <MealList meals={meals} onEdit={handleEditMeal} onDelete={handleDeleteMeal} />
