@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { GeneratedMealCard } from './components/GeneratedMealCard'
 import { MealForm } from './components/MealForm'
 import { MealList } from './components/MealList'
 import { NavTabs } from './components/NavTabs'
+import { ShareMenuCard } from './components/ShareMenuCard'
 import { Toast } from './components/Toast'
 import { EMPTY_MEAL_DRAFT, EMPTY_PLAN, WEEK_TEMPLATE } from './constants'
 import { canGenerateFullWeek, generatePlan } from './lib/generator'
+import { shareWeeklyMenu } from './lib/shareMenu'
 import {
   loadKidFriendlyPreference,
   loadMeals,
@@ -38,6 +40,8 @@ function App() {
   const [validationMessage, setValidationMessage] = useState('')
   const [notices, setNotices] = useState<PlanNotice[]>([])
   const [toastMessage, setToastMessage] = useState('')
+  const [isSharing, setIsSharing] = useState(false)
+  const shareCardRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     saveMeals(meals)
@@ -101,7 +105,24 @@ function App() {
     [meals],
   )
 
+  const shareMenuItems = useMemo(
+    () =>
+      WEEK_TEMPLATE.map((slot) => {
+        const planItem = plan.items.find((item) => item.slotId === slot.slotId)
+        const mealName = planItem?.mealId ? mealsById[planItem.mealId]?.name ?? null : null
+
+        return {
+          slotId: slot.slotId,
+          slotLabel: slot.label,
+          type: slot.type,
+          mealName,
+        }
+      }),
+    [mealsById, plan.items],
+  )
+
   const hasFullWeek = canGenerateFullWeek(meals)
+  const hasGeneratedMenu = plan.items.some((item) => item.mealId)
 
   const handleGenerate = (keepLocked: boolean) => {
     const result = generatePlan({
@@ -192,6 +213,35 @@ function App() {
     }))
   }
 
+  const handleShareMenu = async () => {
+    if (!shareCardRef.current || !hasGeneratedMenu) {
+      return
+    }
+
+    setIsSharing(true)
+
+    try {
+      const result = await shareWeeklyMenu({
+        cardNode: shareCardRef.current,
+        items: shareMenuItems,
+      })
+
+      if (result.status === 'shared') {
+        setToastMessage('Menu ready to share.')
+      } else if (result.status === 'downloaded-and-copied') {
+        setToastMessage('Image downloaded and menu text copied.')
+      } else if (result.status === 'downloaded') {
+        setToastMessage('Menu image downloaded.')
+      } else if (result.status === 'copied') {
+        setToastMessage('Menu text copied.')
+      }
+    } catch {
+      setToastMessage('Could not share right now. Please try again.')
+    } finally {
+      setIsSharing(false)
+    }
+  }
+
   const helperMessage = hasFullWeek
     ? 'Your library has enough meals for a full spin.'
     : 'Add at least 3 mains, 1 soup, and 1 snack to unlock a full week.'
@@ -235,6 +285,14 @@ function App() {
                   disabled={plan.items.every((item) => !item.mealId)}
                 >
                   Try another mix
+                </button>
+                <button
+                  type="button"
+                  className="button button--ghost"
+                  onClick={handleShareMenu}
+                  disabled={!hasGeneratedMenu || isSharing}
+                >
+                  {isSharing ? 'Preparing menu...' : 'Share menu'}
                 </button>
               </div>
             </div>
@@ -336,6 +394,12 @@ function App() {
           </section>
         </main>
       )}
+
+      <div className="share-capture-shell" aria-hidden="true">
+        <div ref={shareCardRef}>
+          <ShareMenuCard items={shareMenuItems} />
+        </div>
+      </div>
 
       {toastMessage ? <Toast message={toastMessage} /> : null}
     </div>

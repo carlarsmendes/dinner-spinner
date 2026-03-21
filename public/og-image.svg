@@ -1,0 +1,15 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="40" fill="#FAFAFF"/>
+  <circle cx="162" cy="120" r="120" fill="#F1F1FF"/>
+  <circle cx="1045" cy="120" r="96" fill="#D6E4FF"/>
+  <circle cx="1070" cy="522" r="148" fill="#EAEAFF"/>
+  <rect x="92" y="92" width="1016" height="446" rx="36" fill="white" stroke="#EAEAFF" stroke-width="4"/>
+  <text x="148" y="196" fill="#6F6FE6" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">DINNER SPINNER</text>
+  <text x="148" y="296" fill="#2B2B2B" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="800">A cheerful family</text>
+  <text x="148" y="382" fill="#2B2B2B" font-family="Inter, Arial, sans-serif" font-size="78" font-weight="800">meal planner</text>
+  <text x="148" y="452" fill="#6B6B6B" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="500">
+    Spin up your week’s menu in seconds.
+  </text>
+  <rect x="148" y="488" width="222" height="54" rx="27" fill="#F1F1FF"/>
+  <text x="186" y="522" fill="#6F6FE6" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">🍽️ This week’s menu</text>
+</svg>

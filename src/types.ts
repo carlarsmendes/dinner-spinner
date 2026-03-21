@@ -38,3 +38,10 @@ export type MealDraft = {
   tags: Tag[]
   ingredients: string
 }
+
+export type ShareMenuItem = {
+  slotId: string
+  slotLabel: string
+  type: MealType
+  mealName: string | null
+}

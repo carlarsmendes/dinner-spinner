@@ -1,0 +1,116 @@
+import { toBlob } from 'html-to-image'
+import type { ShareMenuItem } from '../types'
+
+type ShareWeeklyMenuOptions = {
+  cardNode: HTMLElement
+  items: ShareMenuItem[]
+}
+
+type ShareResult =
+  | { status: 'shared' }
+  | { status: 'downloaded' }
+  | { status: 'downloaded-and-copied' }
+  | { status: 'copied' }
+
+const SITE_URL = 'https://dinner-spinner.vercel.app/'
+
+const buildSectionText = (title: string, items: string[]) => {
+  if (items.length === 0) {
+    return `${title}:\n- Open spot`
+  }
+
+  return `${title}:\n${items.map((item) => `- ${item}`).join('\n')}`
+}
+
+export const buildWeeklyMenuShareText = (items: ShareMenuItem[]) => {
+  const mains = items.filter((item) => item.type === 'main').map((item) => item.mealName ?? 'Open spot')
+  const soup = items.find((item) => item.type === 'soup')?.mealName ?? 'Open spot'
+  const snack = items.find((item) => item.type === 'snack')?.mealName ?? 'Open spot'
+
+  return [
+    'Dinner Spinner 🍽️',
+    '',
+    "This week's menu:",
+    '',
+    buildSectionText('Main dishes', mains),
+    '',
+    buildSectionText('Soup', [soup]),
+    '',
+    buildSectionText('Snack', [snack]),
+  ].join('\n')
+}
+
+const downloadImage = (blob: Blob, fileName: string) => {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+const copyToClipboard = async (text: string) => {
+  if (!navigator.clipboard?.writeText) {
+    return false
+  }
+
+  await navigator.clipboard.writeText(text)
+  return true
+}
+
+const shareFileIfPossible = async (blob: Blob, text: string) => {
+  if (!navigator.share || typeof File === 'undefined') {
+    return false
+  }
+
+  const file = new File([blob], 'dinner-spinner-menu.png', { type: 'image/png' })
+  const data = {
+    title: 'Dinner Spinner 🍽️',
+    text,
+    url: SITE_URL,
+    files: [file],
+  }
+
+  if (!navigator.canShare || !navigator.canShare({ files: [file] })) {
+    return false
+  }
+
+  await navigator.share(data)
+  return true
+}
+
+export const shareWeeklyMenu = async ({
+  cardNode,
+  items,
+}: ShareWeeklyMenuOptions): Promise<ShareResult> => {
+  const text = buildWeeklyMenuShareText(items)
+  const blob = await toBlob(cardNode, {
+    cacheBust: true,
+    pixelRatio: 2,
+    backgroundColor: '#fffaf4',
+  })
+
+  if (!blob) {
+    const copied = await copyToClipboard(text)
+    return copied ? { status: 'copied' } : { status: 'downloaded' }
+  }
+
+  try {
+    const shared = await shareFileIfPossible(blob, text)
+
+    if (shared) {
+      return { status: 'shared' }
+    }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return { status: 'copied' }
+    }
+  }
+
+  downloadImage(blob, 'dinner-spinner-menu.png')
+  const copied = await copyToClipboard(text)
+
+  return copied ? { status: 'downloaded-and-copied' } : { status: 'downloaded' }
+}
