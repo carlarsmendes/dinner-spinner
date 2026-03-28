@@ -228,12 +228,16 @@ function App() {
 
       if (result.status === 'shared') {
         setToastMessage('Menu ready to share.')
+      } else if (result.status === 'shared-text') {
+        setToastMessage('Share sheet opened.')
       } else if (result.status === 'downloaded-and-copied') {
         setToastMessage('Image downloaded and menu text copied.')
       } else if (result.status === 'downloaded') {
         setToastMessage('Menu image downloaded.')
       } else if (result.status === 'copied') {
         setToastMessage('Menu text copied.')
+      } else if (result.status === 'cancelled') {
+        setToastMessage('')
       }
     } catch {
       setToastMessage('Could not share right now. Please try again.')

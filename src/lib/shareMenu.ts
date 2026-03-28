@@ -8,9 +8,11 @@ type ShareWeeklyMenuOptions = {
 
 type ShareResult =
   | { status: 'shared' }
+  | { status: 'shared-text' }
   | { status: 'downloaded' }
   | { status: 'downloaded-and-copied' }
   | { status: 'copied' }
+  | { status: 'cancelled' }
 
 const SITE_URL = 'https://dinner-spinner.vercel.app/'
 
@@ -60,7 +62,22 @@ const copyToClipboard = async (text: string) => {
   return true
 }
 
-const shareFileIfPossible = async (blob: Blob, text: string) => {
+const shareTextIfPossible = async (text: string) => {
+  if (!navigator.share) {
+    return false
+  }
+
+  const data = {
+    title: 'Dinner Spinner 🍽️',
+    text,
+    url: SITE_URL,
+  }
+
+  await navigator.share(data)
+  return true
+}
+
+const shareFileIfPossible = async (blob: Blob) => {
   if (!navigator.share || typeof File === 'undefined') {
     return false
   }
@@ -68,8 +85,6 @@ const shareFileIfPossible = async (blob: Blob, text: string) => {
   const file = new File([blob], 'dinner-spinner-menu.png', { type: 'image/png' })
   const data = {
     title: 'Dinner Spinner 🍽️',
-    text,
-    url: SITE_URL,
     files: [file],
   }
 
@@ -93,19 +108,43 @@ export const shareWeeklyMenu = async ({
   })
 
   if (!blob) {
+    try {
+      const shared = await shareTextIfPossible(text)
+
+      if (shared) {
+        return { status: 'shared-text' }
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return { status: 'cancelled' }
+      }
+    }
+
     const copied = await copyToClipboard(text)
-    return copied ? { status: 'copied' } : { status: 'downloaded' }
+    return copied ? { status: 'copied' } : { status: 'cancelled' }
   }
 
   try {
-    const shared = await shareFileIfPossible(blob, text)
+    const shared = await shareFileIfPossible(blob)
 
     if (shared) {
       return { status: 'shared' }
     }
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      return { status: 'copied' }
+      return { status: 'cancelled' }
+    }
+  }
+
+  try {
+    const shared = await shareTextIfPossible(text)
+
+    if (shared) {
+      return { status: 'shared-text' }
+    }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return { status: 'cancelled' }
     }
   }
 
