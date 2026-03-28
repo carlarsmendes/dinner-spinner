@@ -256,11 +256,6 @@ function App() {
           <p className="hero__copy">
             Save family favorites, spin a fresh mix, and keep the meals you already love with one tap.
           </p>
-          <div className="hero__chips" aria-hidden="true">
-            <span className="hero-chip">🍝 Family favorites</span>
-            <span className="hero-chip">🎯 Quick weekly picks</span>
-            <span className="hero-chip">🔒 Lock what stays</span>
-          </div>
         </div>
         <NavTabs active={screen} onChange={setScreen} />
       </header>
