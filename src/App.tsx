@@ -275,16 +275,8 @@ function App() {
                 <p className="section-copy">Spin a cheerful starting point, then keep the picks that already feel right.</p>
               </div>
               <div className="action-row">
-                <button type="button" className="button" onClick={() => handleGenerate(false)}>
+                <button type="button" className="button" onClick={() => handleGenerate(true)}>
                   Spin the week
-                </button>
-                <button
-                  type="button"
-                  className="button button--ghost"
-                  onClick={() => handleGenerate(true)}
-                  disabled={plan.items.every((item) => !item.mealId)}
-                >
-                  Try another mix
                 </button>
                 <button
                   type="button"
