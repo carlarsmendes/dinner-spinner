@@ -7,6 +7,7 @@ Dinner Spinner is a lightweight family meal-planning MVP built with React, Vite,
 - React
 - Vite
 - TypeScript
+- Supabase (meals backend)
 - `localStorage` persistence
 - Vercel-friendly static frontend
 
@@ -14,6 +15,7 @@ Dinner Spinner is a lightweight family meal-planning MVP built with React, Vite,
 
 - `This Week` screen with weekly meal generation
 - `My Meals` screen for adding, editing, and deleting meals
+- Supabase-backed meal persistence (with local fallback)
 - Meal types: `main`, `soup`, `snack`
 - Tags including `kid-friendly`
 - Weekly generator for `3 mains + 1 soup + 1 snack`
@@ -43,13 +45,15 @@ Dinner Spinner is a lightweight family meal-planning MVP built with React, Vite,
 npm install
 ```
 
-2. Start the dev server:
+2. Create `.env` from `.env.example` and fill in your `VITE_SUPABASE_ANON_KEY`.
+
+3. Start the dev server:
 
 ```bash
 npm run dev
 ```
 
-3. Open the local URL printed by Vite.
+4. Open the local URL printed by Vite.
 
 ## Build
 
@@ -64,6 +68,34 @@ This app is a standard Vite frontend. Vercel can deploy it with the default sett
 - Framework preset: `Vite`
 - Build command: `npm run build`
 - Output directory: `dist`
+
+## Supabase Setup (Backend Phase 1)
+
+1. Authenticate and initialize:
+
+```bash
+supabase login
+supabase init
+supabase link --project-ref lwololnqgctndohbcozx
+```
+
+2. Apply the meals schema migration:
+
+```bash
+supabase db push
+```
+
+3. Add environment variables:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_SUPABASE_HOUSEHOLD_ID` (optional, defaults to `family-default`)
+
+4. App behavior:
+
+- Meals are loaded from Supabase when configured.
+- If Supabase is unavailable, the app keeps working with localStorage.
+- Weekly plan generation/regeneration and sharing remain client-side in this phase.
 
 ## Social Preview Image
 

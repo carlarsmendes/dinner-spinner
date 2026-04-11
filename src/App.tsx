@@ -7,10 +7,14 @@ import { ShareMenuCard } from './components/ShareMenuCard'
 import { Toast } from './components/Toast'
 import { EMPTY_MEAL_DRAFT, EMPTY_PLAN, WEEK_TEMPLATE } from './constants'
 import { canGenerateFullWeek, generatePlan } from './lib/generator'
+import {
+  deleteMealInDataSource,
+  loadMealsFromDataSource,
+  upsertMealInDataSource,
+} from './lib/mealsDataSource'
 import { shareWeeklyMenu } from './lib/shareMenu'
 import {
   loadKidFriendlyPreference,
-  loadMeals,
   loadPlan,
   saveKidFriendlyPreference,
   saveMeals,
@@ -32,7 +36,7 @@ const createMealId = () =>
 
 function App() {
   const [screen, setScreen] = useState<'week' | 'meals'>('week')
-  const [meals, setMeals] = useState<Meal[]>(() => loadMeals())
+  const [meals, setMeals] = useState<Meal[]>([])
   const [plan, setPlan] = useState(() => loadPlan())
   const [kidFriendlyGoal, setKidFriendlyGoal] = useState(() => loadKidFriendlyPreference())
   const [draft, setDraft] = useState<MealDraft>(EMPTY_MEAL_DRAFT)
@@ -42,6 +46,26 @@ function App() {
   const [toastMessage, setToastMessage] = useState('')
   const [isSharing, setIsSharing] = useState(false)
   const shareCardRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+
+    const hydrateMeals = async () => {
+      const result = await loadMealsFromDataSource()
+
+      if (!mounted) {
+        return
+      }
+
+      setMeals(result.meals)
+    }
+
+    void hydrateMeals()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   useEffect(() => {
     saveMeals(meals)
@@ -170,6 +194,7 @@ function App() {
 
       return [nextMeal, ...currentMeals]
     })
+    void upsertMealInDataSource(nextMeal)
 
     resetForm()
     setScreen('meals')
@@ -185,6 +210,7 @@ function App() {
 
   const handleDeleteMeal = (mealId: string) => {
     setMeals((currentMeals) => currentMeals.filter((meal) => meal.id !== mealId))
+    void deleteMealInDataSource(mealId)
     setPlan((currentPlan) => ({
       ...currentPlan,
       items: currentPlan.items.map((item) =>
